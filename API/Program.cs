@@ -14,6 +14,9 @@ builder.Services.AddDbContext<StoreContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+// ajout
+builder.Services.AddCors();
+// 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,6 +25,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// ajout 
+app.UseCors(opt=>{
+    opt.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000");
+});
+// 
 
 // app.UseHttpsRedirection();
 
@@ -32,11 +41,13 @@ app.MapControllers();
 var scope = app.Services.CreateScope();
 var context = scope.ServiceProvider.GetRequiredService<StoreContext>();
 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-try{
+try
+{
     context.Database.Migrate();
     DbInitializer.DbInitialize(context);
-}catch(Exception ex)
+}
+catch (Exception ex)
 {
-    logger.LogError(ex,"A problem occured during migration");
+    logger.LogError(ex, "A problem occured during migration");
 }
 app.Run();
